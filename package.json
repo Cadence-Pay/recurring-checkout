@@ -31,7 +31,8 @@
     "lint": "eslint . && prettier --check .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "build": "tsup"
+    "build": "tsup",
+    "build:example": "tsup --config tsup.example.config.ts"
   },
   "peerDependencies": {
     "react": "^19.0.0",

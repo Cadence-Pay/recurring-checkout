@@ -1,14 +1,123 @@
 # recurring-checkout
 
-Embeddable React library for Stellar Recurring. Planned job: a `<SubscribeButton>` that shows a plan's terms, asks the subscriber to approve a token allowance, and subscribes.
+An embeddable React button that subscribes a person to a Stellar Recurring plan. It loads the plan, shows the terms in plain words, connects the person's wallet, and then makes two signed transactions: a token approval for the later payments, and the subscription itself, which pays the first period.
 
 This is **not** payment streaming. It is one discrete charge per period.
 
 ## Status
 
-**Skeleton only.** The package builds (ESM, CJS and types) and has a placeholder component. There is no subscribe button, wallet connection or contract call yet.
+Implemented and covered by unit tests (101 passing): the terms and approval maths, the subscribe flow, the network layer (against a fake RPC server), the component, the wallet adapter, and the contrast of the default theme.
+
+Also checked against the real testnet deployment, **read and simulate only** (opt-in tests, `LIVE_TESTNET=1`): reading a plan and its token, a balance, preparing a real approval transaction, and simulating a real `subscribe`. The built example page was loaded in a DOM and rendered the live plan's terms.
+
+**Not tested:** a complete subscription with a real wallet signing both transactions, and use in a real browser by a person. That end-to-end run is part of the integration phase. Until then, treat the flow as unproven in practice.
 
 **Audit status: the contract this widget talks to has not been audited. This widget has not been audited either.**
+
+## Install
+
+```bash
+pnpm add recurring-checkout react react-dom
+pnpm add @creit.tech/stellar-wallets-kit   # optional, see "Wallets"
+```
+
+The package is not published yet; until it is, build it from this folder (`pnpm build`) and install from the folder. React 19 is a peer dependency. `@stellar/stellar-sdk` is installed with the package.
+
+## Use
+
+```tsx
+import { SubscribeButton } from 'recurring-checkout';
+import 'recurring-checkout/style.css';
+
+<SubscribeButton
+  planId={1}
+  contractId="C…"
+  rpcUrl="https://soroban-testnet.stellar.org"
+  networkPassphrase="Test SDF Network ; September 2015"
+  onSuccess={(result) => console.log(result.subscriptionId)}
+  onError={(error) => console.warn(error.code, error.message)}
+/>;
+```
+
+Nothing network-specific is built in: the network, RPC server and contract all come from the props. A working page is in [examples/basic](examples/basic) (`pnpm build:example`, then open `examples/basic/index.html`). It points at the public testnet deployment, which is wiped on the testnet reset date written in the repository's `docs/TESTNET.md`.
+
+### Props
+
+| Prop                 | Required | Meaning                                                                                                                                                                                |
+| -------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `planId`             | yes      | The plan, a whole number from 1.                                                                                                                                                       |
+| `contractId`         | yes      | The recurring contract (starts with `C`).                                                                                                                                              |
+| `rpcUrl`             | yes      | Stellar RPC server URL.                                                                                                                                                                |
+| `networkPassphrase`  | yes      | Network passphrase. A wallet on another network is refused.                                                                                                                            |
+| `onSuccess(result)`  | no       | Called once when subscribed. `result` has `planId`, `subscriptionId`, `subscriber`, `approveTxHash` (null if the approval was made earlier in the same session) and `subscribeTxHash`. |
+| `onError(error)`     | no       | Called when subscribing fails or cannot start. `error` is a `SubscribeError` with a `code`, the `step` it happened at, a readable `message`, and `approved`.                           |
+| `maxCharges`         | no       | How many later charges one approval covers at most. Default 12.                                                                                                                        |
+| `maxApprovalLedgers` | no       | Longest an approval may last, in ledgers. Default 3,000,000 (about 174 days).                                                                                                          |
+| `wallet`             | no       | Your own wallet adapter (see below).                                                                                                                                                   |
+| `className`          | no       | Extra class for the outer element.                                                                                                                                                     |
+| `chain`              | no       | Replaces the network layer. For tests and advanced use.                                                                                                                                |
+
+Error codes: `CONFIG`, `PLAN_NOT_FOUND`, `PLAN_INACTIVE`, `PERIOD_TOO_LONG`, `WALLET_UNAVAILABLE`, `WALLET_REJECTED`, `WRONG_NETWORK`, `INSUFFICIENT_BALANCE`, `NETWORK`, `PENDING`, `FAILED`.
+
+### What the person sees and signs
+
+1. The widget shows the price, the period, what they pay now, what is charged later, and exactly what the approval allows (a total, how many charges that covers, and a date).
+2. On click the wallet opens. The balance is checked **before** anything is signed.
+3. The wallet is asked to sign **twice**: first the token approval, then the subscription. This has to be two transactions because a contract transaction can hold only one operation.
+4. If the approval succeeds but the subscription fails, the widget says so, and pressing the button again asks for **one** signature (the subscription), not a second approval.
+5. If a transaction was sent but not confirmed in time (`PENDING`), the button is disabled and the message tells the person to check their wallet first, so nothing is sent twice.
+
+## Theming
+
+All colours, sizes and the font are CSS variables with a `--rc-` prefix, set on `.rc-root`. Import `recurring-checkout/style.css` for the default theme (light, and dark when the visitor's system is dark), then override any variable from your own CSS. The defaults have zero specificity, so your rules always win.
+
+```css
+.my-shop .rc-root {
+  --rc-primary: #0a7d3c;
+  --rc-primary-contrast: #ffffff;
+  --rc-radius: 0;
+}
+```
+
+| Variable                                            | Used for                               |
+| --------------------------------------------------- | -------------------------------------- |
+| `--rc-bg`, `--rc-text`, `--rc-muted`, `--rc-border` | surface, text, secondary text, outline |
+| `--rc-primary`, `--rc-primary-contrast`             | the button                             |
+| `--rc-danger`, `--rc-success`                       | error and success messages             |
+| `--rc-focus`                                        | keyboard focus ring                    |
+| `--rc-space`, `--rc-radius`, `--rc-font`            | spacing, corners, font                 |
+
+If you change colours, keep text at 4.5:1 contrast against its background. The default theme is checked for this by a test. Extra ready-made themes are planned work (`WAVE-ISSUE(checkout-1)`).
+
+## Wallets
+
+By default the widget uses the [Stellar Wallets Kit](https://github.com/Creit-Tech/Stellar-Wallets-Kit) chooser, which it loads only when the person clicks. Install `@creit.tech/stellar-wallets-kit` (an optional peer dependency) for that. Without it, clicking shows "No wallet is available".
+
+To use another wallet, pass an adapter:
+
+```ts
+const wallet: WalletAdapter = {
+  async connect() {
+    return { address: 'G…', networkPassphrase: 'Test SDF Network ; September 2015' };
+  },
+  async signTransaction(xdr, { networkPassphrase, address }) {
+    return signedXdr;
+  },
+};
+```
+
+`networkPassphrase` in the session may be `null` if the wallet cannot say. A request the person declines should be thrown with code `-4` (SEP-43) or a message containing "rejected", "declined" or "closed"; it is then shown as "Nothing was charged". A chooser dialog of the widget's own is planned work (`WAVE-ISSUE(checkout-2)`).
+
+## Security notes: what the subscriber is authorizing
+
+- **The approval is a cap with an end date, not unlimited access.** It lets only the recurring contract take the plan amount, once per billing period, up to the total shown, until the date shown. It does not move money by itself. The contract takes it when a charge is due.
+- **The first payment is made immediately** when subscribing, directly from the person's account to the merchant. It is not returned if they cancel.
+- **How long an approval can last is limited by the network** (about 180 days). A plan with a long period therefore covers fewer charges, and the widget says how many. After the date, charging stops until the person approves again. Plans whose period is longer than any approval can last cannot be subscribed to with this widget, and say so.
+- **Cancelling does not remove the approval.** Either the subscriber or the merchant can cancel the subscription through the contract, which stops all charges. A subscriber who wants to be sure should also remove the approval in their wallet.
+- **The merchant chooses the token.** A token that misbehaves (blocks transfers, can freeze or claw back funds) can break payments. Only subscribe to plans that use a token you trust.
+- **The widget never holds keys.** Signing happens in the wallet. The widget itself stores nothing in the browser (the wallet chooser may remember which wallet was picked).
+- **Nothing is sent before the balance has been checked,** but the check is advice, not a guarantee: the balance can change before the transaction runs, and the contract then refuses the payment.
+- The contract is **not audited**. Do not use it with money you cannot afford to lose.
 
 ## Verify
 
@@ -16,7 +125,9 @@ This is **not** payment streaming. It is one discrete charge per period.
 pnpm install --frozen-lockfile && pnpm lint && pnpm typecheck && pnpm test && pnpm build
 ```
 
-Needs Node 24 or newer and pnpm. React 19 is a peer dependency.
+Needs Node 24 or newer and pnpm. `pnpm build:example` builds the example page separately. The opt-in live tests (`LIVE_TESTNET=1 pnpm test`) need the network and fail once testnet is reset and the contract is gone.
+
+The files in `src/contract/` are generated by `stellar-js generate`; see the header in each file.
 
 ## License
 

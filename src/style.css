@@ -1,0 +1,125 @@
+/*
+ * Default theme of the subscribe widget. Every colour, size and font is a CSS variable, so a site
+ * restyles the widget by setting these variables on .rc-root or on any element around it:
+ *
+ *   .my-shop { --rc-primary: #0a7d3c; --rc-radius: 0; }
+ *
+ * The defaults sit inside :where(), which has no specificity, so any rule of the host wins.
+ * Dark colours apply when the visitor's system is set to dark.
+ *
+ * WAVE-ISSUE(checkout-1): extra theme presets (more sets of these variables) plug in here. The MVP
+ * has this one default theme.
+ */
+:where(.rc-root) {
+  --rc-bg: #ffffff;
+  --rc-text: #14181f;
+  --rc-muted: #4a5565;
+  --rc-border: #d3d9e2;
+  --rc-primary: #1a56db;
+  --rc-primary-contrast: #ffffff;
+  --rc-danger: #b42318;
+  --rc-success: #05603a;
+  --rc-focus: #1a56db;
+  --rc-space: 1rem;
+  --rc-radius: 0.5rem;
+  --rc-font: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :where(.rc-root) {
+    --rc-bg: #161b22;
+    --rc-text: #e6eaf0;
+    --rc-muted: #a3adbb;
+    --rc-border: #2d3542;
+    --rc-primary: #7aa7ff;
+    --rc-primary-contrast: #0b1020;
+    --rc-danger: #ff8a7a;
+    --rc-success: #5fd39a;
+    --rc-focus: #7aa7ff;
+  }
+}
+
+.rc-root {
+  box-sizing: border-box;
+  max-width: 28rem;
+  padding: var(--rc-space);
+  background: var(--rc-bg);
+  color: var(--rc-text);
+  border: 1px solid var(--rc-border);
+  border-radius: var(--rc-radius);
+  font-family: var(--rc-font);
+  line-height: 1.5;
+}
+
+.rc-root *,
+.rc-root *::before,
+.rc-root *::after {
+  box-sizing: inherit;
+}
+
+.rc-heading {
+  margin: 0 0 calc(var(--rc-space) / 2);
+  font-size: 1.125rem;
+}
+
+.rc-price {
+  margin: 0 0 var(--rc-space);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.rc-terms {
+  margin: 0 0 var(--rc-space);
+  padding-left: 1.25rem;
+}
+
+.rc-muted {
+  margin: 0 0 var(--rc-space);
+  color: var(--rc-muted);
+  font-size: 0.875rem;
+}
+
+.rc-button {
+  display: block;
+  width: 100%;
+  padding: calc(var(--rc-space) * 0.6) var(--rc-space);
+  border: 1px solid var(--rc-primary);
+  border-radius: var(--rc-radius);
+  background: var(--rc-primary);
+  color: var(--rc-primary-contrast);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.rc-button--secondary {
+  background: transparent;
+  color: var(--rc-primary);
+}
+
+.rc-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.rc-button:focus-visible {
+  outline: 3px solid var(--rc-focus);
+  outline-offset: 2px;
+}
+
+.rc-error {
+  margin: var(--rc-space) 0 0;
+  color: var(--rc-danger);
+}
+
+.rc-success {
+  margin: var(--rc-space) 0 0;
+  color: var(--rc-success);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rc-root * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

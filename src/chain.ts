@@ -117,6 +117,14 @@ export interface ChainDeps {
   readonly confirmTimeoutMs?: number;
 }
 
+/**
+ * The symbol to show for a token. The contract of native XLM answers `native`, which means
+ * nothing to a customer, so it is shown as XLM.
+ */
+export function displaySymbol(symbol: string): string {
+  return symbol === 'native' ? 'XLM' : symbol;
+}
+
 /** The error text of a raw simulation response, if it has one. */
 function simulationErrorText(simulation: unknown): string | undefined {
   if (typeof simulation !== 'object' || simulation === null || !('error' in simulation)) {
@@ -303,7 +311,7 @@ export function createCheckoutChain(config: ChainConfig, deps: ChainDeps = {}): 
           amount: plan.amount,
           periodSecs: Number(plan.period_secs),
           active: plan.active,
-          symbol,
+          symbol: displaySymbol(symbol),
           decimals,
         };
       } catch (error) {

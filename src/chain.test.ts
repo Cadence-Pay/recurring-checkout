@@ -8,6 +8,7 @@ import { AssembledTransaction, SentTransaction } from '@stellar/stellar-sdk/cont
 import { describe, expect, it } from 'vitest';
 import {
   createCheckoutChain,
+  displaySymbol,
   toSubscribeError,
   type ContractClientLike,
   type ServerLike,
@@ -141,6 +142,16 @@ describe('getPlanTerms', () => {
       symbol: 'XLM',
       decimals: 7,
     });
+  });
+
+  it('shows the native token as XLM instead of the word the contract answers', async () => {
+    const chain = createCheckoutChain(CONFIG, {
+      server: fakeServer({ token: { symbol: 'native' } }).server,
+      makeClient: fakeClient(),
+    });
+    expect((await chain.getPlanTerms(1)).symbol).toBe('XLM');
+    expect(displaySymbol('native')).toBe('XLM');
+    expect(displaySymbol('USDC')).toBe('USDC');
   });
 
   it('reports an unknown plan from the contract error code', async () => {

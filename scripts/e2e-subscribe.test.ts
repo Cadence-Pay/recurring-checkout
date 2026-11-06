@@ -6,7 +6,7 @@
  * real contract. The "wallet" is the Stellar CLI: it signs with a key that is stored under a NAME in
  * the CLI's key store, so no secret key is ever passed to, printed by or stored by this code.
  *
- * It SPENDS funds and creates a real subscription, so it only runs when E2E_TESTNET=1 and all of
+ * It SPENDS funds and creates a real subscription, so it only runs when E2E_RUN=1 and all of
  * these are given:
  *
  *   E2E_NETWORK             testnet (or mainnet, see below)
@@ -61,7 +61,7 @@ function cliWallet(identity: string, net: E2eNetwork): WalletAdapter {
   };
 }
 
-describe.skipIf(process.env['E2E_TESTNET'] !== '1')('end to end subscribe', () => {
+describe.skipIf(process.env['E2E_RUN'] !== '1')('end to end subscribe', () => {
   it('subscribes through the widget flow', async () => {
     const net = readE2eNetwork(process.env);
     const identity = checkIdentityName(process.env['E2E_SIGN_IDENTITY']);

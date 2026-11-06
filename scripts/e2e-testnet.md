@@ -45,7 +45,7 @@ This runs the widget's real code (balance check, token approval, subscription). 
 
 ```bash
 cd recurring-checkout && pnpm install --frozen-lockfile
-E2E_TESTNET=1 E2E_NETWORK=testnet E2E_RPC_URL=https://soroban-testnet.stellar.org \
+E2E_RUN=1 E2E_NETWORK=testnet E2E_RPC_URL=https://soroban-testnet.stellar.org \
 E2E_NETWORK_PASSPHRASE="Test SDF Network ; September 2015" \
 E2E_SIGN_IDENTITY=recurring-subscriber E2E_PLAN_ID=$PLAN E2E_CONTRACT_ID=$CONTRACT \
   pnpm exec vitest run scripts/e2e-subscribe.test.ts

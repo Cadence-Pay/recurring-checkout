@@ -6,11 +6,11 @@ This is **not** payment streaming. It is one discrete charge per period.
 
 ## Status
 
-Implemented and covered by unit tests (101 passing): the terms and approval maths, the subscribe flow, the network layer (against a fake RPC server), the component, the wallet adapter, and the contrast of the default theme.
+Implemented and covered by unit tests (`pnpm test`; 103 at the time of writing): the terms and approval maths, the subscribe flow, the network layer (against a fake RPC server), the component, the wallet adapter, and the contrast of the default theme.
 
-Also checked against the real testnet deployment, **read and simulate only** (opt-in tests, `LIVE_TESTNET=1`): reading a plan and its token, a balance, preparing a real approval transaction, and simulating a real `subscribe`. The built example page was loaded in a DOM and rendered the live plan's terms.
+Run for real on the **testnet** with the Stellar CLI standing in for a wallet: the widget's subscribe flow checked the balance, made the token approval and subscribed, and the keeper then charged that subscription twice (see `scripts/e2e-testnet.md` and the repository's `docs/DEMO.md`). The built example page was also loaded in a DOM and rendered the live plan's terms.
 
-**Not tested:** a complete subscription with a real wallet signing both transactions, and use in a real browser by a person. That end-to-end run is part of the integration phase. Until then, treat the flow as unproven in practice.
+**Not tested:** a real wallet extension signing in a real browser, by a person. Wallet connection, the wallet's own dialogs and how the widget looks on a real page are unproven. Nothing has run on mainnet.
 
 **Audit status: the contract this widget talks to has not been audited. This widget has not been audited either.**
 

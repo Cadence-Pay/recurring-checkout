@@ -2,7 +2,7 @@
 
 Steps to repeat the whole flow on the Stellar **testnet**: create a short plan, subscribe through the widget's real flow code, let the keeper charge twice, cancel. It contains no secrets. Keys stay in the Stellar CLI key store and are only ever named.
 
-It spends testnet funds and creates real testnet subscriptions. It works on **testnet only**. The testnet is wiped on the dates in the repository's `docs/TESTNET.md`; after that, deploy a contract first and use its id below.
+It spends testnet funds and creates real testnet subscriptions. The script takes the network from the environment and refuses mainnet unless the owner sets `E2E_ALLOW_MAINNET=yes` for one run (see the repository's `docs/RELEASE.md`); this runbook is for testnet. The testnet is wiped on the dates in the repository's `docs/TESTNET.md`; after that, deploy a contract first and use its id below.
 
 ## You need
 
@@ -45,7 +45,9 @@ This runs the widget's real code (balance check, token approval, subscription). 
 
 ```bash
 cd recurring-checkout && pnpm install --frozen-lockfile
-E2E_TESTNET=1 E2E_SIGN_IDENTITY=recurring-subscriber E2E_PLAN_ID=$PLAN E2E_CONTRACT_ID=$CONTRACT \
+E2E_TESTNET=1 E2E_NETWORK=testnet E2E_RPC_URL=https://soroban-testnet.stellar.org \
+E2E_NETWORK_PASSPHRASE="Test SDF Network ; September 2015" \
+E2E_SIGN_IDENTITY=recurring-subscriber E2E_PLAN_ID=$PLAN E2E_CONTRACT_ID=$CONTRACT \
   pnpm exec vitest run scripts/e2e-subscribe.test.ts
 ```
 

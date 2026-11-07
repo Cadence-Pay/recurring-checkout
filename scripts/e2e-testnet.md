@@ -2,12 +2,12 @@
 
 Steps to repeat the whole flow on the Stellar **testnet**: create a short plan, subscribe through the widget's real flow code, let the keeper charge twice, cancel. It contains no secrets. Keys stay in the Stellar CLI key store and are only ever named.
 
-It spends testnet funds and creates real testnet subscriptions. The script takes the network from the environment and refuses mainnet unless the owner sets `E2E_ALLOW_MAINNET=yes` for one run (see the repository's `docs/RELEASE.md`); this runbook is for testnet. The testnet is wiped on the dates in the repository's `docs/TESTNET.md`; after that, deploy a contract first and use its id below.
+It spends testnet funds and creates real testnet subscriptions. The script takes the network from the environment and refuses mainnet unless the owner sets `E2E_ALLOW_MAINNET=yes` for one run (see [docs/RELEASE.md](https://github.com/Cadence-Pay/recurring-contracts/blob/main/docs/RELEASE.md)); this runbook is for testnet. The testnet is wiped on the dates in [docs/TESTNET.md](https://github.com/Cadence-Pay/recurring-contracts/blob/main/docs/TESTNET.md); after that, deploy a contract first and use its id below.
 
 ## You need
 
 - The Stellar CLI, Node 24 or newer, and pnpm.
-- Funded testnet identities in the CLI key store: a merchant, a subscriber and a keeper. The repository's `docs/TESTNET.md` lists the ones created for it (`recurring-merchant`, `recurring-subscriber`, `recurring-keeper`) and how to fund more (`stellar keys fund <name> --network testnet`).
+- Funded testnet identities in the CLI key store: a merchant, a subscriber and a keeper. The contracts repository's [docs/TESTNET.md](https://github.com/Cadence-Pay/recurring-contracts/blob/main/docs/TESTNET.md) lists the ones created for it (`recurring-merchant`, `recurring-subscriber`, `recurring-keeper`) and how to fund more (`stellar keys fund <name> --network testnet`).
 - A deployed contract id (`CONTRACT`) and a token contract id (`TOKEN`). The testnet XLM contract works and needs no setup: `stellar contract id asset --asset native --network testnet`.
 
 ```bash

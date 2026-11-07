@@ -6,8 +6,8 @@ import { createCheckoutChain } from './chain';
 import { CONTRACT, SUBSCRIBER, TESTNET, TOKEN } from './testing/fakes';
 
 /**
- * Checks of the real network layer against the real testnet deployment from the repository's
- * docs/TESTNET.md. They read and simulate only: nothing is signed or sent, because the stand-in
+ * Checks of the real network layer against the real testnet deployment recorded in
+ * https://github.com/Cadence-Pay/recurring-contracts/blob/main/docs/TESTNET.md. They read and simulate only: nothing is signed or sent, because the stand-in
  * wallet always declines at the signing step. They need the network and the testnet contract, which
  * is wiped when testnet resets, so they run only with LIVE_TESTNET=1.
  */

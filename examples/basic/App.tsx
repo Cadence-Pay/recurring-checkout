@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { SubscribeButton, type SubscribeError } from '../../src/index';
 
 /**
- * Settings of the public testnet deployment (see docs/TESTNET.md in the repository). Testnet is
+ * Settings of the public testnet deployment (see https://github.com/Cadence-Pay/recurring-contracts/blob/main/docs/TESTNET.md). Testnet is
  * wiped on 2026-12-16; after that, deploy your own contract and change these values.
  */
 export const EXAMPLE = {

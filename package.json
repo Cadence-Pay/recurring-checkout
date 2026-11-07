@@ -3,6 +3,14 @@
   "version": "0.1.0",
   "description": "Embeddable React subscribe button for Stellar Recurring.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Cadence-Pay/recurring-checkout.git"
+  },
+  "homepage": "https://github.com/Cadence-Pay/recurring-checkout#readme",
+  "bugs": {
+    "url": "https://github.com/Cadence-Pay/recurring-checkout/issues"
+  },
   "private": true,
   "type": "module",
   "sideEffects": [
